@@ -1,0 +1,736 @@
+Page Object Pattern (Done)
+UI Mapping (Done)
+Data Driven (Done)
+Wrapper around WebDriver interfaces (Done)
+Support for IE, Chrome, Firefox and HTMLUnit (Done)
+Preference to CSS Selectors (Done)
+Supports Mobile web automation using emulator in Google Chrome (Done)
+REST Api Automation. (Done)
+Wrapper around JSON and Http Clients classes to expose simple methods. (In Progress)
+Supports Mobile automation using Appium (In Progress)
+Wrap methods for Select Api, Actions Api and JavascriptExecutor in PageDriver. (In Progress,Actions API-Done)
+Maven Dependency Management (In Progress)
+Implement screen shot Api (ToDo)
+RallyDev Integration (ToDo)
+Tool to generate CSS Selectors using browser plugin (ToDo)
+Jenkins Integration (ToDo)
+File Upload Example (ToDo)
+Login datadriven, window handles example (Done)
+TestNG HTML report to email using Jenkins (ToDo)
+
+
+1) Page object pattern
+class LoginPage
+  include PageObject
+
+  text_field(:username, :id => 'username')
+  text_field(:password, :id => 'password')
+  button(:login, :id => 'login')
+end
+
+2) UI Mapping
+A UI Map is a mechanism that stores all the locators for a test suite in one place for easy modification when identifiers or paths to UI elements change in the AUT. The test script then uses the UI Map for locating the elements to be tested.
+
+public class Config {
+  public static String admin_username;
+
+  static {
+    Properties props = ...;
+    admin_username = props.getProperty("admin.username");
+  }
+}
+import static Config
+ublic class AdminUiMap {
+    public String username;
+
+    public UiMap(String fileName) {
+        Properties props = new Properties();
+        props.load(new FileInputStream(fileName));
+
+        this.username = props.getProperty("admin.username");
+    }
+
+3)Date Driven
+
+public class Getallurl {
+	 //driver = new ChromeDriver();
+	    
+	 static List <WebElement>mainurl,suburl;
+	 static List<String>uniqueurl;
+	public static void main(String args[])
+	{
+	 
+	 System.out.println("Started...");
+	 WebDriver driver=new FirefoxDriver();
+	 driver.get("https://www.naukri.com");
+	 List<WebElement> all_links_webpage = driver.findElements(By.tagName("a")); 
+	 
+	 System.out.println("Total no of links Available: " + all_links_webpage.size());
+	 
+	 int k = all_links_webpage.size();
+	 
+	 System.out.println("List of links Available: ");
+	 
+	 for(int i=0;i<k;i++)
+	 { 
+	  if(all_links_webpage.get(i).getAttribute("href").contains("naukri"))
+	  {
+	       String link = all_links_webpage.get(i).getAttribute("href");
+	       System.out.println(link);
+	       
+	       driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	       
+	       //@test
+	       
+	       String parent=driver.getWindowHandle();
+	       Set<String>s1=driver.getWindowHandles();
+	 
+	       Iterator<String> I1= s1.iterator();
+	        
+	       while(I1.hasNext())
+	       {      
+	        String child_window=I1.next();
+	  
+	        if(!parent.equals(child_window))
+	        {
+	          driver.switchTo().window(child_window);            
+	          System.out.println(driver.switchTo().window(child_window).getTitle());            
+	          driver.close();
+	        }
+	  
+	       }
+	       driver.switchTo().window(parent);
+	       driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	          
+	  }
+	 }
+	}
+	}
+
+4) Wrapper around WebDriver interfaces
+public class WebUI{
+  private WebDriver driver;    
+  private WebElement permissionTable;   
+
+   public WebUI(){
+      driver = new firefoxDriver();
+   }
+
+  public WebDriver getDriver(){
+     return driver;
+  }
+
+  public WebElement getPermissionTable(){
+     return permissionTable;
+  }
+
+  public TableWebElement getTable(){
+     permissionTable = driver.findElement(By.id("studyPermissionsTable"));
+     return new TableWebElement(this);
+  }
+}
+
+public class TableWebElement{
+  private WebUI webUI;
+
+ public TableWebElement(WebUI wUI){
+    this.webUI = wUI;
+ }
+
+ public int getTableSize() {
+   
+   WebElement element = webUI.getDriver().findElement(By.id("foo"));
+    WebElement myTable = webUI.getPermissionTable();
+
+ }
+
+}
+
+ @Test
+ public void testTableSize(){
+    WebUI web = new WebUI();
+    TableWebElement myTable = web.getTable();
+    Assert.assertEquals(myTable.getSize(), 25);
+ }
+
+5) Support for IE, Chrome, Firefox and HTMLUnit
+
+public void testBasicAuth_Firefox() {
+
+		WebDriver driver = new FirefoxDriver();
+		driver.manage().window().maximize();
+		driver.get("http://admin:admin@yoururl.com");
+		String text = driver.findElement(By.className("home")).getText();
+		Assert.assertTrue(text.contains("Welcome"), "Basic Authentication failed")
+
+public void testBasicAuth_Chrome() {
+
+		System.setProperty("webdriver.chrome.driver", "G:/Jars/chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.get("http://admin:admin@yoururl.com");
+		String text = driver.findElement(By.className("home")).getText();
+		Assert.assertTrue(text.contains("Welcome"), "Basic Authentication failed");
+	}
+public void testBasicAuth_IE() {
+		DesiredCapabilities caps = DesiredCapabilities.internetExplorer();   
+		caps.setCapability(InternetExplorerDriver.INITIAL_BROWSER_URL, "");
+
+		System.setProperty("webdriver.ie.driver", "G:/Jars/IEDriverServer.exe");
+        WebDriver driver=new InternetExplorerDriver(caps); 
+		driver.manage().window().maximize();
+		driver.get("http://yoururl.com");
+		try {
+			Runtime.getRuntime().exec("G:/basicauth.exe");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+6) Preference to CSS Selector
+
+public class Login {
+ 
+ 
+ public static void main(String[] args) throws IOException, InterruptedException {
+  // TODO Auto-generated method stub
+
+  WebDriver driver = null;
+  String baseUrl  = "www.naukri.com";
+  ReadWrite objExc = new ReadWrite(baseUrl, baseUrl);
+  
+  
+  
+    System.out.println("welcome to automation world ");
+   
+    driver  = new FirefoxDriver();
+    driver.manage().window().maximize();
+    driver.get("https://www.naukri.com");
+   driver.get("/html/body/div/div[4]/form/div[2]/div[2]/div[1]/div[1]/div[3]/div/div[3]/div/input[1]"); 
+   
+   System.out.println( driver.getWindowHandle() );
+   Set<String> wlist  = driver.getWindowHandles();
+  
+   
+   System.out.println("Application opend : "+driver.getCurrentUrl()+wlist.size());
+   
+   String baseWindow ="";
+   String window1="";
+   
+   try
+   {
+   for(int i =0; i<wlist.size(); i++)
+   {  
+    
+    if(i == 0)
+    {     
+     baseWindow = (String) wlist.toArray()[i];
+     
+    }
+    else   
+    {
+     window1 = (String) wlist.toArray()[i];
+     
+     System.out.println(driver.switchTo().window(window1).getTitle());
+     
+     driver.switchTo().window(window1).close();
+    }
+    
+    Thread.sleep(500);
+   }   
+   
+   }
+   catch(Exception e)
+   {
+    System.out.println(e);
+   }
+   
+   
+   driver.switchTo().window(baseWindow );
+   
+   System.out.println("Application opend : "+driver.getCurrentUrl()+wlist.size());
+   
+   
+    driver.findElement(By.id("login_Layer")).click();
+    
+    String data  = ((Object) objExc).readExcel("Login",1, 3);   
+    String auth[] = data.split(",");
+    driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+
+    driver.findElement(By.id("eLogin")).sendKeys(auth[0].replace("uid:", ""));
+    driver.findElement(By.id("pLogin")).sendKeys(auth[1].replace("pwd:", ""));
+    driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+    driver.findElement(By.xpath("/html/body/div[8]/div[2]/div[2]/form/div[7]/button")).click();
+   
+    
+   driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+
+    
+   
+    driver.findElement(By.id("fLogin_err")).getAttribute("innerHTML");
+    driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+    driver.findElement(By.id("fLogin_err")).getAttribute("outerHTML");
+    driver.findElement(By.id("fLogin_err")).getAttribute("outerHTML");
+    driver.findElement(By.id("fLogin_err")).getText();
+    
+    String msg  =driver.findElement(By.id("fLogin_err")).getText();
+   
+    System.out.println(" get text : "+msg);
+    
+    msg  = "fail";
+    
+    
+    //driver.close();
+
+   System.out.println("saved..");
+   objExc.writeExcel("Login", 1, 7, msg);
+    
+    
+    //*[@id="lgnFrm"]/div[7]/button
+      
+ }
+
+
+ }
+
+7) Supports Mobile web automation using emulator in Google Chrome
+
+Using webdriver in chrome, for example:
+
+Map<String, String> deviceMetrics = new HashMap<String, Object>();
+deviceMetrics.put("width", 360);
+deviceMetrics.put("height", 640);
+deviceMetrics.put("pixelRatio", 3.0);
+Map<String, String> mobileEmulation = new HashMap<String, String>();
+
+mobileEmulation.put("deviceMetrics", deviceMetrics);
+mobileEmulation.put("userAgent", "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19");
+
+Map<String, Object> chromeOptions = new Map<String, Object>();
+chromeOptions.put("mobileEmulation", mobileEmulation);
+DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+WebDriver driver = new ChromeDriver(capabilities);
+
+8) REST Api Automation
+
+package RestAPITest; 
+import static com.jayway.restassured.RestAssured.get; 
+import org.json.JSONArray; 
+import org.json.JSONException; 
+import org.testng.Assert; 
+import org.testng.annotations.
+Test; import com.jayway.restassured.response.Response; public class RestTest {
+ @Test public void getRequestFindCapital() throws JSONException 
+{ Response = = get("http://restcountries.eu/rest/v1/name/norway");respJSONArray jsonResponse = new JSONArray(resp.asString()); 
+ String capital = jsonResponse.getJSONObject(0).getString("capital");
+ Assert.assertEquals(capital, "Oslo"); } }
+
+9) Wrapper around JSON and Http Clients classes to expose simple methods.
+type JSONResponseWriter struct {
+        writer http.ResponseWriter
+
+func (w JSONResponseWriter) Response(v interface{}) {
+        w.writer.Header().Set("Content-Type", "application/json")
+        enc := json.NewEncoder(w.writer)
+        enc.Encode(v)
+
+func (w JSONResponseWriter) Error(code int, format string, args ...interface{}) {
+        type Error struct {
+                Error string `json:"error"`
+        }
+        w.writer.Header().Set("Content-Type", "application/json")
+        msg := Error{fmt.Sprintf(format, args...)}
+        w.writer.WriteHeader(code)
+        enc := json.NewEncoder(w.writer)
+
+type JSONRequest struct {
+        *http.Request
+
+func (r JSONRequest) Decode(v interface{}) error {
+        dec := json.NewDecoder(r.Body)
+        return dec.Decode(v)
+
+type JSONHandler func(w JSONResponseWriter, r JSONRequest)
+
+func (h JSONHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+        h(JSONResponseWriter{w}, JSONRequest{r})
+
+
+10)Supports Mobile automation using Appium 
+
+For example:
+public void setUp() throws Exception {
+    
+    File appDir = new File(System.getProperty("user.dir"), "../../../apps/TestApp/build/Release-iphonesimulator");
+ 
+    File app = new File(appDir, "TestApp.app");
+    DesiredCapabilities capabilities = new DesiredCapabilities();
+    capabilities.setCapability(CapabilityType.BROWSER_NAME, "iOS");
+    capabilities.setCapability(CapabilityType.VERSION, "6.0");
+    capabilities.setCapability(CapabilityType.PLATFORM, "Mac");
+ 
+    
+    capabilities.setCapability("app", app.getAbsolutePath());
+ 
+    
+    driver = new RemoteWebDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
+}
+
+11)Wrap methods for Select Api, Actions Api and JavascriptExecutor in PageDriver. 
+??????????????????????????????????????????????????????????????????????????????
+
+
+12)Maven Dependency Management
+<project>
+  <build>
+    <plugins>
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-jar-plugin</artifactId>
+       <version>2.4</version>
+       <executions>
+         <execution>
+           <goals>
+             <goal>test-jar</goal>
+           </goals>
+         </execution>
+       </executions>
+     </plugin>
+    </plugins>
+  </build>
+</project>
+
+13) Implement screen shot Api 
+package screenshot_package;
+
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public class screenshot {
+
+    public static void main(String[] args) {
+
+        WebDriver driver = new FirefoxDriver();
+        driver.get("http://apttest.in");
+
+        try{
+           
+            File screenshot = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+
+            
+            FileUtils.copyFile(screenshot,new File("C:\\Users\\udit\\Desktop\\screenshot.jpeg"));
+
+        }catch(Exception e){
+            
+            System.out.println("Failure to take screenshot "+e);
+
+        }
+        finally
+        {
+           
+            driver.quit();
+        }
+    }
+}
+
+14) RallyDev Integration
+
+15)Tool to generate CSS Selectors using browser plugin
+
+One of the tool that can be used is FireFox add on as firepath.
+package testCase;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterSuite;
+
+import utilities.*;
+
+public class Signup {
+ 
+ WebDriver driver = null;
+ String baseUrl  = "www.naukri.com";
+ ReadWrite objExc = null;
+ 
+ 
+ //(dataProvider = "dp")
+  @Test  
+  public void f() {
+   
+   System.out.println("welcome to automation world ");
+ 
+   driver  = new FirefoxDriver();
+   driver.get(baseUrl);
+   
+   driver.findElement(By.id("login_Layer")).click();
+   
+   String data  = objExc.readExcel("Login",1, 3);   
+   String auth[] = data.split(",");
+   
+   driver.findElement(By.id("eLogin")).sendKeys(auth[0].replace("uid:", ""));
+   driver.findElement(By.id("pLogin")).sendKeys(auth[1].replace("pwd:", ""));
+ 
+   driver.findElement(By.xpath("*[@id='lgnFrm']/div[7]/button")).click();
+  
+   
+   String msg  = driver.findElement(By.id("fLogin_err")).getText();
+     
+   System.out.println(msg);
+   
+   
+   //*[@id="lgnFrm"]/div[7]/button
+
+
+
+
+
+
+
+16) Jenkins Integration 
+
+Jenkins is an open-source continuous integration software tool written in the Java programming language for testing and reporting on isolated changes in a larger code base in real time. The software enables developers to find and solve defects in a code base rapidly and to automate testing of their builds.
+
+
+
+17) File Upload Example
+Import required java libraries
+import java.io.*;
+import java.util.*;
+ 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+ 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.output.*;
+
+public class UploadServlet extends HttpServlet {
+   
+   private boolean isMultipart;
+   private String filePath;
+   private int maxFileSize = 50 * 1024;
+   private int maxMemSize = 4 * 1024;
+   private File file ;
+
+   public void init( ){
+      
+      filePath = 
+             getServletContext().getInitParameter("file-upload"); 
+   }
+   public void doPost(HttpServletRequest request, 
+               HttpServletResponse response)
+              throws ServletException, java.io.IOException {
+      
+      isMultipart = ServletFileUpload.isMultipartContent(request);
+      response.setContentType("text/html");
+      java.io.PrintWriter out = response.getWriter( );
+      if( !isMultipart ){
+         out.println("<html>");
+         out.println("<head>");
+         out.println("<title>Servlet upload</title>");  
+         out.println("</head>");
+         out.println("<body>");
+         out.println("<p>No file uploaded</p>"); 
+         out.println("</body>");
+         out.println("</html>");
+         return;
+      }
+      DiskFileItemFactory factory = new DiskFileItemFactory();
+      
+      factory.setSizeThreshold(maxMemSize);
+      
+      factory.setRepository(new File("c:\\temp"));
+
+      
+      ServletFileUpload upload = new ServletFileUpload(factory);
+     
+      upload.setSizeMax( maxFileSize );
+
+      try{ 
+      .
+      List fileItems = upload.parseRequest(request);
+	
+     
+      Iterator i = fileItems.iterator();
+
+      out.println("<html>");
+      out.println("<head>");
+      out.println("<title>Servlet upload</title>");  
+      out.println("</head>");
+      out.println("<body>");
+      while ( i.hasNext () ) 
+      {
+         FileItem fi = (FileItem)i.next();
+         if ( !fi.isFormField () )	
+         {
+            
+            String fieldName = fi.getFieldName();
+            String fileName = fi.getName();
+            String contentType = fi.getContentType();
+            boolean isInMemory = fi.isInMemory();
+            long sizeInBytes = fi.getSize();
+            
+            if( fileName.lastIndexOf("\\") >= 0 ){
+               file = new File( filePath + 
+               fileName.substring( fileName.lastIndexOf("\\"))) ;
+            }else{
+               file = new File( filePath + 
+               fileName.substring(fileName.lastIndexOf("\\")+1)) ;
+            }
+            fi.write( file ) ;
+            out.println("Uploaded Filename: " + fileName + "<br>");
+         }
+      }
+      out.println("</body>");
+      out.println("</html>");
+   }catch(Exception ex) {
+       System.out.println(ex);
+   }
+   }
+   public void doGet(HttpServletRequest request, 
+                       HttpServletResponse response)
+        throws ServletException, java.io.IOException {
+        
+        throw new ServletException("GET method used with " +
+                getClass( ).getName( )+": POST method required.");
+   } 
+}
+
+18) Login datadriven, window handles example
+package com.pack;
+
+import java.util.Set;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class WindowExamples {
+	static WebDriver driver;
+
+	@Test
+	public void test_CloseAllWindowsExceptMainWindow() {
+		driver = new FirefoxDriver();
+		
+		driver.get("http://www.naukri.com/");
+		
+		e
+		String windowTitle= getCurrentWindowTitle();
+		String mainWindow = getMainWindowHandle(driver);
+		Assert.assertTrue(closeAllOtherWindows(mainWindow));
+		Assert.assertTrue(windowTitle.contains("Jobs - Recruitment"), "Main window title is not matching");
+	}
+		
+	public String getMainWindowHandle(WebDriver driver) {
+		return driver.getWindowHandle();
+	}
+
+	public String getCurrentWindowTitle() {
+		String windowTitle = driver.getTitle();
+		return windowTitle;
+	}
+	
+	.
+	public static boolean closeAllOtherWindows(String openWindowHandle) {
+		Set<String> allWindowHandles = driver.getWindowHandles();
+		for (String currentWindowHandle : allWindowHandles) {
+			if (!currentWindowHandle.equals(openWindowHandle)) {
+				driver.switchTo().window(currentWindowHandle);
+				driver.close();
+			}
+		}
+		
+		driver.switchTo().window(openWindowHandle);
+		if (driver.getWindowHandles().size() == 1)
+			return true;
+		else
+			return false;
+	}
+}
+
+19) TestNG HTML report to email using Jenkins
+
+import java.util.*;
+import javax.mail.*;
+import javax.mail.internet.*;
+import javax.activation.*;
+
+public class SendFileEmail
+{
+   public static void main(String [] args)
+   {
+
+     String to = "abcd@gmail.com";
+      
+      String from = "web@gmail.com";
+      String host = "localhost";
+     
+      Properties properties = System.getProperties();
+      properties.setProperty("mail.smtp.host", host);
+     .Session session = Session.getDefaultInstance(properties);
+
+      try{
+         
+         MimeMessage message = new MimeMessage(session);
+        
+         message.setFrom(new InternetAddress(from));
+        
+         message.addRecipient(Message.RecipientType.TO,
+                                  new InternetAddress(to));
+
+         
+         message.setSubject("This is the Subject Line!");
+
+        
+         BodyPart messageBodyPart = new MimeBodyPart();
+
+        
+         messageBodyPart.setText("This is message body");
+
+        
+         Multipart multipart = new MimeMultipart();
+
+         
+         multipart.addBodyPart(messageBodyPart);
+
+         
+         messageBodyPart = new MimeBodyPart();
+         String filename = "<Enter File Path of Emailable Report>";
+         DataSource source = new FileDataSource(filename);
+         messageBodyPart.setDataHandler(new DataHandler(source));
+         messageBodyPart.setFileName(filename);
+         multipart.addBodyPart(messageBodyPart);
+
+        
+         message.setContent(multipart );
+
+       
+         Transport.send(message);
+         System.out.println("Sent message successfully....");
+      }catch (MessagingException mex) {
+         mex.printStackTrace();
+      }
+   }
+}
